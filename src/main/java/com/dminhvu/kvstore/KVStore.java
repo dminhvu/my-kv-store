@@ -12,4 +12,6 @@ public interface KVStore {
   boolean exists(String key);
 
   int size();
+
+  long increment(String key, long delta);
 }

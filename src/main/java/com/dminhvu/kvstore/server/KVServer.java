@@ -3,12 +3,15 @@ package com.dminhvu.kvstore.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.dminhvu.kvstore.KVStore;
 
 public class KVServer {
   private final int port;
   private final KVStore store;
+  private final ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
   public KVServer(int port, KVStore store) {
     this.port = port;
@@ -23,8 +26,7 @@ public class KVServer {
       while (true) {
         Socket clientSocket = serverSocket.accept();
 
-        Thread clientThread = new Thread(new ClientHandler(clientSocket, store));
-        clientThread.start();
+        threadPool.submit(new ClientHandler(clientSocket, store));
       }
     }
   }

@@ -88,6 +88,27 @@ public class ClientHandler implements Runnable {
         boolean exists = store.exists(parts.get(1));
         yield exists ? ":1\r\n" : ":0\r\n";
       }
+      case "INCR" -> {
+        if (parts.size() < 2) {
+          yield "-ERR wrong number of arguments for INCR\r\n";
+
+        }
+
+        long val = store.increment(parts.get(1), 1);
+        yield ":" + String.valueOf(val) + "\r\n";
+      }
+      case "INCRBY" -> {
+        if (parts.size() < 3) {
+          yield "-ERR wrong number of arguments for INCRBY\r\n";
+        }
+        try {
+          long delta = Long.parseLong(parts.get(2));
+          long val = store.increment(parts.get(1), delta);
+          yield ":" + String.valueOf(val) + "\r\n";
+        } catch (NumberFormatException e) {
+          yield "-ERR invalid delta value\r\n";
+        }
+      }
       case "DBSIZE" -> ":" + store.size() + "\r\n";
       case "PING" -> "+PONG\r\n";
       case "QUIT" -> "+OK\r\n";

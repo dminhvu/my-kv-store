@@ -1,14 +1,14 @@
 package com.dminhvu.kvstore;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryKVStore implements KVStore {
   private final Map<String, String> store;
 
   public InMemoryKVStore() {
-    store = new HashMap<>();
+    store = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -40,4 +40,16 @@ public class InMemoryKVStore implements KVStore {
   public int size() {
     return store.size();
   }
+
+  @Override
+  public long increment(String key, long delta) {
+    long[] result = new long[1];
+    store.compute(key, (k, currentValue) -> {
+      long current = (currentValue == null) ? 0L : Long.parseLong(currentValue);
+      result[0] = current + delta;
+      return String.valueOf(result[0]);
+    });
+    return result[0];
+  }
+
 }
